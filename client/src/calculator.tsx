@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './calculator.css';
 import { CalculatorDisplay, CalculatorKey } from './components';
 import { NumericKeys, OperatorKeys, ActionKeys } from './enums';
+import { HttpUtil } from './utils/http.util';
+import { RequestBody } from './interfaces';
+
+const httpUtil: HttpUtil = new HttpUtil('/api/calculator');
 
 export default function Calculator() {
   
   const [display, setDisplay] = useState('');
 
+  useEffect(() => {  
+    httpUtil.getRequest<string>()
+    .then((displayValue: string) => {
+      setDisplay(displayValue);
+    })
+  }, []);
+
   const numericKeyPressHandler = async (key: NumericKeys): Promise<void> => {
-    alert('key pressed: ' + key);
+    const displayValue = await httpUtil.postRequest<string, RequestBody>({ operationType: 'NumericKeys', value: key });
+    setDisplay(displayValue);
   }
 
   const operatorKeyPressHandler = async (key: OperatorKeys): Promise<void> => {
-    alert('key pressed: ' + key);
+    const displayValue = await httpUtil.postRequest<string, RequestBody>({ operationType: 'OperatorKeys', value: key})
+    setDisplay(displayValue);
   }
 
   const actionKeyPressHandler = async (key: ActionKeys): Promise<void> => {
-    alert('key pressed: ' + key);
+    const displayValue = await httpUtil.postRequest<string, RequestBody>({ operationType: 'ActionKeys', value: key})
+    setDisplay(displayValue);
   }
 
   return (
